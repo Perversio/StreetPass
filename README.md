@@ -48,6 +48,7 @@ Be sure to run the command with 'sudo', or it won't have the necessary permissio
 ```
 sudo sh cycleMacs.sh MacAddresses.txt
 ```
+Each 20 cycles you will get a notification and script will pause until any key is pressed.
 
 Technical Notes
 ===========================
