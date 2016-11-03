@@ -18,18 +18,29 @@ if [ $# -lt 1 ]
         then echo "At least one argument must be specified: <REQUIRED: File containing MAC list> <OPTIONAL: Network adapter name (Default is 'en0')>"
                 exit 1
         else
+            cnt=1
 			while IFS=, read mac; do
 			echo "Setting mac address to ${mac}"
 			ifconfig ${adapter} ether ${mac}
 
-			echo "Enabling ICS and sleeping for 5 minutes"
+			echo "Enabling ICS and sleeping for 1 minute"
 			if [ ! -f /System/Library/LaunchDaemons/com.apple.InternetSharing.plist ]
 			    then
 			        sudo networksetup -setnetworkserviceenabled ICS on
 			    else
 			        sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.InternetSharing.plist
 			fi
-			sleep 300
+			sleep 60
+
+            if [ $((cnt%20)) == 0 ]
+                then
+                osascript -e 'display notification "Check Your Nintendo" with title "StreetPass"'
+                read -n1 -r -p "Press any key to continue. Press SPACE to exit..." key
+                if [ "$key" = '' ]
+                then
+                    exit 1
+                fi
+            fi
 
 			echo "Disabling adapter and sleeping for 10s"
 			networksetup -setairportpower ${adapter} off
@@ -47,6 +58,12 @@ if [ $# -lt 1 ]
 			        sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.InternetSharing.plist
 			fi
 			sleep 10
+
+            cnt=$((cnt+1))
+
+            echo "Macs passed ${$((cnt-1))}"
+
+            echo ""
 
 			done <$1
 fi
